@@ -30,6 +30,14 @@ Parameters:
     Default: inti-subang-shopee
     Description: Shopee編のコメントの保存ID(最初に公開したときの値。変更しないこと)
 
+  WebAclArn:
+    Type: String
+    Default: ''
+    Description: CloudFrontの定額プランが付けたWAF(Web ACL)のARN。./set-webacl.sh が設定する
+
+Conditions:
+  HasWebAcl: !Not [!Equals [!Ref WebAclArn, '']]
+
 Globals:
   Function:
     Runtime: nodejs22.x
@@ -191,6 +199,8 @@ Resources:
         Enabled: true
         Comment: !Sub '${AWS::StackName} site'
         DefaultRootObject: index.html
+        # 定額プラン(Free)ではWAFが必須。コンソールで付いたWAFを外さないよう、そのまま指定する
+        WebACLId: !If [HasWebAcl, !Ref WebAclArn, !Ref AWS::NoValue]
         HttpVersion: http2and3
         Origins:
           - Id: site
