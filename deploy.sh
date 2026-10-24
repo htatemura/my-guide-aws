@@ -29,6 +29,17 @@ etag_of() {
     --query ETag --output text 2>/dev/null || echo "missing"
 }
 
+# デプロイ先のAWSアカウントを確認(.expected-account がある場合)
+if [[ -f .expected-account ]]; then
+  want="$(tr -d '[:space:]' < .expected-account)"
+  have="$(aws sts get-caller-identity --query Account --output text)"
+  if [[ "$want" != "$have" ]]; then
+    echo "ログイン中のAWSアカウント($have)が、このサイトのアカウントと違います。中止しました。"
+    echo "aws logout → aws login で正しいアカウントにログインしてください。"
+    exit 1
+  fi
+fi
+
 if [[ $SITE_ONLY -eq 0 ]]; then
   sam build
   sam deploy --stack-name "$STACK" --region "$REGION"

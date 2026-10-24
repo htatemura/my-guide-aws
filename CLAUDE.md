@@ -15,7 +15,10 @@ templates/article.html   新しい記事のひな形
 templates/top.html       目次ページのひな形(移行時のみ使用)
 src/app.mjs              API(Lambda):コメント、ページ一覧、編集モードの保存
 template.yaml            AWS構成(SAM)
+docs/DEPLOY.ja.md        デプロイと運用の手順(日本語)
 ```
+
+このリポジトリは公開されている。秘密(合言葉、アカウント番号、メールアドレス)をファイルやコミットメッセージに書かない。
 
 ## 新しい記事を作るとき
 
@@ -40,7 +43,7 @@ template.yaml            AWS構成(SAM)
 
 ## 公開(デプロイ)
 
-- 事前に `aws login` が必要(12時間で切れる)。`aws sts get-caller-identity` のアカウントが **末尾 3840** であることを確認。末尾 1409 のアカウントには絶対にデプロイしない
+- 事前に `aws login` が必要(12時間で切れる)。正しいデプロイ先は `.expected-account`(Gitに入れないファイル)に書いてあり、`deploy.sh` が自動で照合する。アカウントが違うと言われたら、勝手に進めずユーザーに確認する
 - ページだけの変更: `./deploy.sh --site-only`
 - `src/` や `template.yaml` を変えたとき: `./deploy.sh`(確認で `y`)
 - 管理者が編集モードで公開中のページを直接直していることがある。手元で記事を編集する前に、必ず `./pull-site.sh` で取り込む

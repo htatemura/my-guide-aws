@@ -8,3 +8,5 @@ samconfig.toml
 # 最後に公開したページの版(deploy.shが作成)
 .last-deploy
 .last-deploy.tmp
+# デプロイ先のAWSアカウント番号(公開しない)
+.expected-account
