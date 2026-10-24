@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="はじめての INTI Subang 留学シリーズ。日本人留学生向けに、Shopeeマレーシアの登録から住所・支払い設定、最初の買い物までを日本語でまとめた非公式ガイド。">
+<title>INTI Subang留学 Shopee編</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&amp;family=Zen+Maru+Gothic:wght@700;900&amp;family=IBM+Plex+Mono:wght@500&amp;display=swap">
+<style>
+/* Layout: 1カラムの手順書。左に工程番号の縦線、右に本文。準備物はチェックリスト、支払い方法は比較表 */
+:root{
+  --bg:#f5f7f6; --paper:#ffffff; --ink:#1d2a2a; --muted:#5b6b6a;
+  --line:#d6dfdd; --teal:#0f6e66; --teal-soft:#e0efec; --gold:#b9780d; --gold-soft:#fbf0d9;
+  --warn:#a33a2a; --warn-soft:#f9e6e2;
+  --f-display:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;
+  --f-body:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121a19; --paper:#1a2423; --ink:#e4ecea; --muted:#9db0ad; --line:#2e3c3a;
+  --teal:#5cc4b8; --teal-soft:#1d3532; --gold:#e9b14d; --gold-soft:#3a2f17; --warn:#f08a77; --warn-soft:#3a201b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121a19; --paper:#1a2423; --ink:#e4ecea; --muted:#9db0ad; --line:#2e3c3a;
+  --teal:#5cc4b8; --teal-soft:#1d3532; --gold:#e9b14d; --gold-soft:#3a2f17; --warn:#f08a77; --warn-soft:#3a201b; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.8}
+.wrap{max-width:760px;margin:0 auto;padding-block:40px 64px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:48px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.35;margin:0}
+h1{font-size:clamp(1.9rem,6vw,2.6rem);font-weight:900}
+h2{font-size:1.45rem}
+h3{font-size:1.1rem}
+p{margin:0}
+.eyebrow{font-size:.8rem;letter-spacing:.12em;color:var(--teal);font-weight:700}
+.mono{font-family:var(--f-mono);font-size:.92em;background:var(--teal-soft);padding:1px 6px;border-radius:4px;white-space:nowrap}
+a{color:var(--teal)}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+header{display:flex;flex-direction:column;gap:14px}
+header .lead{color:var(--muted);max-width:60ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:.8rem;border:1px solid var(--line);border-radius:999px;padding:2px 12px;color:var(--muted);background:var(--paper)}
+
+section{display:flex;flex-direction:column;gap:16px}
+
+/* 準備物 */
+.check{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;background:var(--paper);border:1px solid var(--line);border-radius:10px}
+.check li{display:flex;gap:14px;align-items:flex-start;padding:14px 16px;border-bottom:1px solid var(--line)}
+.check li:last-child{border-bottom:0}
+.check input{width:20px;height:20px;margin-top:4px;accent-color:var(--teal);flex:none}
+.check label{display:flex;flex-direction:column;gap:2px;min-width:0;cursor:pointer}
+.check b{font-weight:700}
+.check small{color:var(--muted);font-size:.9rem;line-height:1.6}
+.check input:checked + label b{text-decoration:line-through;color:var(--muted)}
+.progress{font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+
+/* 手順 */
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.step{display:grid;grid-template-columns:44px 1fr;gap:16px;position:relative;padding-bottom:32px}
+.step:last-child{padding-bottom:0}
+.step::before{content:"";position:absolute;left:21px;top:44px;bottom:0;width:2px;background:var(--line)}
+.step:last-child::before{display:none}
+.num{width:44px;height:44px;border-radius:50%;background:var(--teal);color:var(--paper);display:grid;place-items:center;font-family:var(--f-display);font-weight:900;font-size:1.2rem}
+.body{display:flex;flex-direction:column;gap:10px;min-width:0;padding-top:6px}
+.body ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:4px}
+
+.note{border-radius:8px;padding:12px 14px;font-size:.93rem;line-height:1.7}
+.note.tip{background:var(--gold-soft)}
+.note.tip strong{color:var(--gold)}
+.note.warn{background:var(--warn-soft)}
+.note.warn strong{color:var(--warn)}
+
+/* 住所サンプル */
+.addr{font-family:var(--f-mono);font-size:.88rem;background:var(--paper);border:1px dashed var(--line);border-radius:8px;padding:12px 14px;line-height:1.7;overflow-x:auto}
+.addr span{color:var(--muted);font-family:var(--f-body);font-size:.8rem;display:inline-block;min-width:7em}
+
+/* 支払い表 */
+.tbl{overflow-x:auto;background:var(--paper);border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:.93rem}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.6}
+th{font-size:.8rem;letter-spacing:.06em;color:var(--muted);font-weight:700;background:var(--bg)}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:700;white-space:nowrap}
+.rate{font-weight:700;white-space:nowrap}
+.rate.good{color:var(--teal)}
+.rate.mid{color:var(--gold)}
+
+/* FAQ */
+details{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:0 16px}
+details + details{margin-top:8px}
+summary{cursor:pointer;padding:14px 0;font-weight:700;list-style:none;display:flex;justify-content:space-between;gap:12px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"＋";color:var(--teal);flex:none}
+details[open] summary::after{content:"－"}
+details p{padding-bottom:16px;color:var(--ink)}
+
+footer{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:20px;display:flex;flex-direction:column;gap:6px}
+
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+
+/* コメント欄 */
+.cm-form{display:flex;flex-direction:column;gap:14px;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:18px 16px}
+.cm-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.cm-row{grid-template-columns:1fr}}
+.cm-field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.cm-field label{font-size:.85rem;font-weight:700}
+.cm-field small{color:var(--muted);font-size:.8rem}
+.cm-form input,.cm-form select,.cm-form textarea{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;width:100%}
+.cm-form textarea{min-height:140px;resize:vertical;line-height:1.7}
+.cm-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.cm-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.cm-len{font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.cm-btn{font:inherit;font-weight:700;background:var(--teal);color:var(--paper);border:0;border-radius:999px;padding:10px 22px;cursor:pointer}
+.cm-btn:disabled{opacity:.6;cursor:wait}
+.cm-msg{border-radius:8px;padding:10px 14px;font-size:.93rem}
+.cm-msg.ok{background:var(--teal-soft);color:var(--teal)}
+.cm-msg.err{background:var(--warn-soft);color:var(--warn)}
+.cm-note{font-size:.85rem;color:var(--muted)}
+.cm-list{display:flex;flex-direction:column;gap:10px}
+.cm-item{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.cm-item p{white-space:pre-wrap;overflow-wrap:anywhere}
+.cm-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;font-size:.9rem}
+.cm-area{font-size:.78rem;color:var(--teal);background:var(--teal-soft);border-radius:999px;padding:0 10px}
+.cm-head time{color:var(--muted);font-size:.8rem;margin-left:auto;font-variant-numeric:tabular-nums}
+.cm-empty{color:var(--muted)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">はじめての INTI Subang 留学</div>
+  <h1>Shopee 編 Grand SS15 の場合</h1>
+  <p class="lead">日本では Amazon が使えるのにマレーシアでは Shopee。</p>
+  <div class="meta">
+    <span class="chip">対象:INTI Subangの日本人留学生・保護者</span>
+    <span class="chip">所要時間:約15分</span>
+    <span class="chip">2026年10月時点の情報</span>
+  </div>
+</header>
+
+<section aria-labelledby="prep">
+  <div class="eyebrow">STEP 0</div>
+  <h2 id="prep">はじめる前に用意するもの</h2>
+  <p class="progress" id="progress">0 / 4 準備OK</p>
+  <ul class="check">
+    <li><input type="checkbox" id="c1"><label for="c1"><b>マレーシアの携帯電話番号</b><small>SMSで認証コードが届きます。<span class="mono">+60</span> の番号が必要です。既にお持ちかとは思います。</small></label></li>
+    <li><input type="checkbox" id="c2"><label for="c2"><b>スマートフォン</b><small>スマホアプリでの手順を説明します。</small></label></li>
+    <li><input type="checkbox" id="c3"><label for="c3"><b>マレーシアの配達先住所</b><small>寮・コンドミニアム・シェアハウスの住所です。郵便番号(5桁)と州名、ユニット番号も必要です。しかしここでの例は INTI Subang 前の Grand SS15 を例とします。</small></label></li>
+    <li><input type="checkbox" id="c4"><label for="c4"><b>支払い手段をひとつ</b><small>ここでは Wise の例です。詳しくはSTEP 4へ。</small></label></li>
+  </ul>
+</section>
+
+<section aria-labelledby="flow">
+  <div class="eyebrow">STEP 1–4</div>
+  <h2 id="flow">登録の流れ</h2>
+  <ol class="steps">
+    <li class="step">
+      <div class="num" aria-hidden="true">1</div>
+      <div class="body">
+        <h3>スマホの国を切り替えて、アプリを入れる</h3>
+        <p>最初に、スマホのストア(App Store / Google Play)の国をマレーシアに切り替えます。</p><p>切り替えたらストアで「Shopee」を検索してインストールします。</p><div class="note warn"><strong>注意:</strong>ストアの国は一度切り替えると、一定期間は再変更できなくなります。切り替える前に、よく確認してから行いましょう。</div><div class="note tip"><strong>Androidの場合:</strong>新しくGoogleアカウントを作り、Google Playでそのアカウントに切り替えれば、マレーシアのストアを使えます。いつものアカウントの国を変えずにすみます。</div><div class="note tip"><strong>iPhoneの場合:</strong>同じような方法があるかは確認できていません。わからないときは Claude などのAIアシスタントに聞いてみてください。</div>
+        <div class="note tip"><strong>ヒント:</strong>アプリの表示言語は英語・マレー語・中国語から選べます。日本語はないため、英語にしておくと迷いにくいです。設定画面の言語メニューから変更できます。</div>
+        <div class="note warn"><strong>注意:</strong>Shopeeは国ごとに分かれています。マレーシアの住所に届けたい場合は、必ずマレーシア版のアプリで登録してください。</div>
+      </div>
+    </li>
+    <li class="step">
+      <div class="num" aria-hidden="true">2</div>
+      <div class="body">
+        <h3>電話番号でアカウントを作る</h3>
+        <ul>
+          <li>アプリ右下の自分のページから「新規登録」へ</li>
+          <li>携帯電話番号を入力して「次へ」</li>
+          <li>画面に出るパズル(画像認証)を解く</li>
+          <li>SMSで届く<b>6桁の認証コード</b>を入力</li>
+          <li>パスワードを決めて登録完了</li>
+        </ul>
+        <p>Google・Facebook・Appleのアカウントでも登録できますが、その場合もあとで電話番号の登録を求められます。最初から電話番号で登録するのが近道です。</p>
+        <div class="note tip"><strong>ヒント:</strong>番号は先頭の0を抜いて入力します。例:<span class="mono">012-345 6789</span> → <span class="mono">+60 12-345 6789</span></div>
+      <div class="note warn"><strong>注意:</strong>プリペイドSIMの番号は、前の利用者がすでにShopeeに登録していることがあります。その場合は画面にその旨の説明が出るので、「現在この番号を使っているのは自分である」と回答してください。確認が終わるまで数日待つ必要があります。</div></div>
+    </li>
+    <li class="step">
+      <div class="num" aria-hidden="true">3</div>
+      <div class="body">
+        <h3>配達先の住所を登録する</h3>
+        <p>自分のページ → アカウント設定 → 住所 から追加します。入力例:</p>
+        <div class="addr">
+          <span>氏名</span>TANAKA TARO<br>
+          <span>電話番号</span>+60 12-345 6789<br>
+          <span>州・市</span>Selangor, Subang Jaya<br>
+          <span>郵便番号</span>47500<br>
+          <span>番地・建物</span>Unit 8-12-R1, Residensi Contoh, Jalan Contoh 3<br>
+          <span>種類</span>自宅(Home)
+        </div>
+        <p style="font-size:.85rem;color:var(--muted)">※上は書き方の例です。実在の住所ではありません。</p>
+        <div class="note tip"><strong>Grand SS15の場合:</strong>住所にはルーム番号まで入れますが、荷物は実際には部屋まで届かず、Tower 1とTower 2のグランドフロアにある唐揚げ屋さんに届きます。唐揚げ屋さんに1リンギット(RM1)を渡すと受け取れます。近くに宅配ボックスもありますが、保管期間に応じて料金がかかるので、唐揚げ屋さんで受け取るのがおすすめです。</div>
+        
+      </div>
+    </li>
+    <li class="step">
+      <div class="num" aria-hidden="true">4</div>
+      <div class="body"><h3>支払い方法を決める</h3><p>支払い方法は注文時に選べます。このガイドで実際に使えたことを確認しているのは <b>Wise のカード</b>です。支払い方法で「クレジット/デビットカード(Credit / Debit Card)」を選び、Wise のカードを登録して支払います。</p><div class="note warn"><strong>注意:</strong>ほかの支払い方法(オンラインバンキング、ShopeePay、代金引換、カードなど)は試していないため、使えるかどうかはわかりません。</div></div>
+    </li>
+    
+  </ol>
+</section>
+
+
+
+<section aria-labelledby="faq">
+  <div class="eyebrow">困ったとき</div>
+  <h2 id="faq">よくある質問</h2>
+  <div>
+    <details><summary>SMSの認証コードが届かない</summary><p>番号の先頭の0を入れていないか、国番号が+60になっているかを確認してください。数分待ってから再送信を。日本の番号では届かない場合があるので、マレーシアの番号での登録をおすすめします。</p></details>
+    <details><summary>日本の電話番号で登録できますか?</summary><p>マレーシアの番号で登録するのが確実です。</p></details>
+    <details><summary>出発前に日本で準備できることは?</summary><p>アプリのインストールと、欲しいものの下調べはできます。登録と注文はマレーシアの電話番号と住所が決まってからにしましょう。到着直後に必要なもの(ハンガー、延長コード、変換プラグなど)は、近くのショッピングモールで買い、落ち着いてから Shopee でそろえると慌てずにすみます。</p></details>
+    <details><summary>商品が中国から届くと言われた</summary><p>Shopeeには海外発送の出品も多く、届くまで1〜3週間かかることがあります。急ぐときは商品ページの発送元が「Malaysia」国内のものを選びましょう。</p></details>
+    <details><summary>届かない・壊れていた</summary><p>商品を受け取るまで代金は出品者に渡らない仕組みです。問題があれば「受け取り完了」を押す前に、注文画面から返品・返金を申請してください。</p></details>
+  </div>
+</section>
+
+<section aria-labelledby="cm-title">
+  <div class="eyebrow">みんなの体験談</div>
+  <h2 id="cm-title">質問・コメント <span class="cm-len" id="cm-count"></span></h2>
+  <p class="cm-note">留学生や保護者の方の、うまくいった方法、つまずいたところ、質問などをお寄せください。いただいたコメントは管理人が確認してから表示します。電話番号や住所などの個人情報は書かないでください。</p>
+  <form class="cm-form" id="cm-form" novalidate="">
+    <div class="cm-row">
+      <div class="cm-field">
+        <label for="cm-name">ニックネーム</label>
+        <input id="cm-name" name="name" maxlength="30" autocomplete="nickname" placeholder="空欄なら「匿名」">
+      </div>
+      <div class="cm-field">
+        <label for="cm-role">立場</label>
+        <select id="cm-role" name="role">
+          <option value="">選ばない</option>
+          <option>在学中の留学生</option>
+          <option>これから留学する人</option>
+          <option>保護者</option>
+          <option>卒業生</option>
+          <option>その他</option>
+        </select>
+      </div>
+    </div>
+    <div class="cm-field">
+      <label for="cm-body">コメント</label>
+      <textarea id="cm-body" name="body" maxlength="1000" required="" placeholder="例:寮の住所で登録して、代金引換で問題なく届きました。"></textarea>
+    </div>
+    <div class="cm-hp" aria-hidden="true">
+      <label for="cm-website">ウェブサイト</label>
+      <input id="cm-website" name="website" tabindex="-1" autocomplete="off">
+    </div>
+    <div id="cm-turnstile"></div>
+    <div class="cm-actions">
+      <span class="cm-len" id="cm-len">0 / 1000</span>
+      <button class="cm-btn" id="cm-submit" type="submit">コメントを送る</button>
+    </div>
+    <p class="cm-msg" id="cm-msg" role="status" hidden=""></p>
+  </form>
+  <div class="cm-list" id="cm-list" aria-live="polite"><p class="cm-empty">コメントを読み込んでいます…</p></div>
+</section>
+
+<footer>
+  <p>シリーズ「はじめての INTI Subang 留学」の1本です。ShopeeやINTIの公式ページではありません。2026年10月時点で調べた内容をもとにした個人のまとめです。画面の表示や手順は変わることがあるため、最新情報はShopeeアプリ内のヘルプセンターで確認してください。</p>
+</footer>
+</div>
+
+<script>
+(function(){
+  const boxes=[...document.querySelectorAll('.check input')];
+  const out=document.getElementById('progress');
+  const KEY='shopee-my-prep';
+  let saved={};
+  try{saved=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
+  boxes.forEach(b=>{if(saved[b.id])b.checked=true});
+  function update(){
+    const n=boxes.filter(b=>b.checked).length;
+    out.textContent=n+' / '+boxes.length+' 準備OK'+(n===boxes.length?' — 始めましょう':'');
+    const s={};boxes.forEach(b=>s[b.id]=b.checked);
+    try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){}
+  }
+  boxes.forEach(b=>b.addEventListener('change',update));
+  update();
+})();
+</script>
+<script src="config.js"></script>
+<script src="comments.js" defer=""></script>
+<script>if(location.hash==="#edit"){var s=document.createElement("script");s.src="/edit.js";s.defer=true;document.head.appendChild(s);}</script>
+
+
+
+</body></html>

@@ -1,0 +1,268 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Hajimete INTI Subang study guide - Shopee page (S3 + CloudFront) with moderated comments (Lambda + DynamoDB)
+
+Parameters:
+  AdminToken:
+    Type: String
+    NoEcho: true
+    MinLength: 20
+    Description: 管理画面で使う合言葉(20文字以上のランダム文字列)
+  OriginSecret:
+    Type: String
+    NoEcho: true
+    MinLength: 20
+    Description: CloudFront経由以外のアクセスを拒否するための秘密文字列(20文字以上)
+  TurnstileSecret:
+    Type: String
+    NoEcho: true
+    Default: ''
+    Description: Cloudflare TurnstileのSecret Key(使わない場合は空欄)
+  NotifyEmail:
+    Type: String
+    Description: 新着コメント通知と予算アラートの送信先メールアドレス
+  BudgetLimitUsd:
+    Type: Number
+    Default: 1
+    Description: この金額(USD/月)を超えたらメールで通知
+  PageId:
+    Type: String
+    Default: inti-subang-shopee
+    Description: Shopee編のコメントの保存ID(最初に公開したときの値。変更しないこと)
+
+Globals:
+  Function:
+    Runtime: nodejs22.x
+    Architectures: [arm64]
+    MemorySize: 256
+    Timeout: 10
+
+Resources:
+  # ---------- ページ本体 ----------
+  SiteBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      VersioningConfiguration:        # 編集モードで上書きしても過去の版に戻せるように
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: expire-old-versions
+            Status: Enabled
+            NoncurrentVersionExpiration:
+              NoncurrentDays: 90
+
+  SiteOAC:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub '${AWS::StackName}-oac'
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  SiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref SiteBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowCloudFrontRead
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub '${SiteBucket.Arn}/*'
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}'
+
+  # ---------- コメント ----------
+  CommentsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PROVISIONED      # 無料枠はプロビジョンドのみ
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+        - AttributeName: sk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+        - AttributeName: sk
+          KeyType: RANGE
+
+  NotifyTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+        - Protocol: email
+          Endpoint: !Ref NotifyEmail
+
+  CommentsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: app.handler
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref CommentsTable
+          PAGE_ID: !Ref PageId
+          ADMIN_TOKEN: !Ref AdminToken
+          ORIGIN_SECRET: !Ref OriginSecret
+          TURNSTILE_SECRET: !Ref TurnstileSecret
+          TOPIC_ARN: !Ref NotifyTopic
+          SITE_BUCKET: !Ref SiteBucket
+          DIST_COMMENT: !Sub '${AWS::StackName} site'   # Distribution の Comment と同じ値
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CommentsTable
+        - SNSPublishMessagePolicy:
+            TopicName: !GetAtt NotifyTopic.TopicName
+        - Version: '2012-10-17'          # 編集モード:ページの読み書きとキャッシュ削除
+          Statement:
+            - Effect: Allow
+              Action: [s3:GetObject, s3:PutObject]
+              Resource: !Sub '${SiteBucket.Arn}/*'
+            - Effect: Allow
+              Action: s3:ListBucket            # ページ一覧と、ページの存在確認に使う
+              Resource: !GetAtt SiteBucket.Arn
+            - Effect: Allow
+              Action: cloudfront:ListDistributions
+              Resource: '*'
+            - Effect: Allow
+              Action: cloudfront:CreateInvalidation
+              Resource: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/*'
+      FunctionUrlConfig:
+        AuthType: NONE   # CloudFrontからの秘密ヘッダーで保護
+
+  CommentsLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${CommentsFunction}'
+      RetentionInDays: 30
+
+  # ---------- 配信 ----------
+  # /shopee/ のようなフォルダのURLを /shopee/index.html に読み替える
+  DirectoryIndexFunction:
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name: !Sub '${AWS::StackName}-dir-index'
+      AutoPublish: true
+      FunctionConfig:
+        Comment: Serve index.html for folder URLs
+        Runtime: cloudfront-js-2.0
+      FunctionCode: |
+        function handler(event) {
+          var req = event.request;
+          var uri = req.uri;
+          if (uri.endsWith('/')) {
+            req.uri = uri + 'index.html';
+          } else if (uri.lastIndexOf('.') < uri.lastIndexOf('/') + 1) {
+            // 拡張子のないURL(/shopee)は /shopee/ に転送
+            var qs = Object.keys(req.querystring).length ? '?' + Object.keys(req.querystring)
+              .map(function (k) { return k + '=' + req.querystring[k].value; }).join('&') : '';
+            return { statusCode: 301, statusDescription: 'Moved Permanently',
+                     headers: { location: { value: uri + '/' + qs } } };
+          }
+          return req;
+        }
+
+  Distribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: !Sub '${AWS::StackName} site'
+        DefaultRootObject: index.html
+        HttpVersion: http2and3
+        Origins:
+          - Id: site
+            DomainName: !GetAtt SiteBucket.RegionalDomainName
+            S3OriginConfig:
+              OriginAccessIdentity: ''
+            OriginAccessControlId: !GetAtt SiteOAC.Id
+          - Id: api
+            DomainName: !Select [2, !Split ['/', !GetAtt CommentsFunctionUrl.FunctionUrl]]
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols: [TLSv1.2]
+            OriginCustomHeaders:
+              - HeaderName: x-origin-verify
+                HeaderValue: !Ref OriginSecret
+        DefaultCacheBehavior:
+          TargetOriginId: site
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD]
+          Compress: true
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6          # Managed-CachingOptimized
+          FunctionAssociations:
+            - EventType: viewer-request
+              FunctionARN: !GetAtt DirectoryIndexFunction.FunctionMetadata.FunctionARN
+        CacheBehaviors:
+          - PathPattern: /api/*
+            TargetOriginId: api
+            ViewerProtocolPolicy: https-only
+            AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
+            Compress: true
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad        # Managed-CachingDisabled
+            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac # Managed-AllViewerExceptHostHeader
+
+  # ---------- 予算アラート ----------
+  MonthlyBudget:
+    Type: AWS::Budgets::Budget
+    Properties:
+      Budget:
+        BudgetName: !Sub '${AWS::StackName}-monthly'
+        BudgetType: COST
+        TimeUnit: MONTHLY
+        BudgetLimit:
+          Amount: !Ref BudgetLimitUsd
+          Unit: USD
+      NotificationsWithSubscribers:
+        - Notification:
+            NotificationType: ACTUAL
+            ComparisonOperator: GREATER_THAN
+            Threshold: 100
+            ThresholdType: PERCENTAGE
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: !Ref NotifyEmail
+        - Notification:
+            NotificationType: FORECASTED
+            ComparisonOperator: GREATER_THAN
+            Threshold: 100
+            ThresholdType: PERCENTAGE
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: !Ref NotifyEmail
+
+Outputs:
+  SiteUrl:
+    Description: サイトのURL
+    Value: !Sub 'https://${Distribution.DomainName}'
+  AdminUrl:
+    Description: 管理画面のURL
+    Value: !Sub 'https://${Distribution.DomainName}/admin.html'
+  BucketName:
+    Value: !Ref SiteBucket
+  DistributionId:
+    Value: !Ref Distribution
+  FunctionName:
+    Value: !Ref CommentsFunction

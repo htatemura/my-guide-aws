@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>サイト管理</title>
+<style>
+:root{--bg:#f5f7f6;--paper:#fff;--ink:#1d2a2a;--muted:#5b6b6a;--line:#d6dfdd;--teal:#0f6e66;--teal-soft:#e0efec;--gold:#b9780d;--gold-soft:#fbf0d9;--warn:#a33a2a;--warn-soft:#f9e6e2}
+@media (prefers-color-scheme:dark){:root{--bg:#121a19;--paper:#1a2423;--ink:#e4ecea;--muted:#9db0ad;--line:#2e3c3a;--teal:#5cc4b8;--teal-soft:#1d3532;--gold:#e9b14d;--gold-soft:#3a2f17;--warn:#f08a77;--warn-soft:#3a201b;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;line-height:1.7}
+.wrap{max-width:820px;margin:0 auto;padding:32px 16px 64px;display:flex;flex-direction:column;gap:20px}
+h1{margin:0;font-size:1.5rem}
+h2{margin:0;font-size:1.1rem}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+input,select{font:inherit;font-size:16px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);min-width:0}
+#token{flex:1}
+button{font:inherit;font-weight:700;border:0;border-radius:999px;padding:8px 18px;cursor:pointer;background:var(--teal);color:var(--paper)}
+button.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+button.danger{background:var(--warn-soft);color:var(--warn)}
+.tabs button{background:transparent;color:var(--muted);border:1px solid var(--line)}
+.tabs button[aria-pressed="true"]{background:var(--teal);color:var(--paper);border-color:var(--teal)}
+.msg{padding:10px 14px;border-radius:8px;background:var(--warn-soft);color:var(--warn);margin:0}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.pages{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.pages li{display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:6px}
+.pages li:last-child{border-bottom:0;padding-bottom:0}
+.pages code{color:var(--muted);font-size:.85rem}
+.pages a{color:var(--teal)}
+.btn-edit{font-weight:700;border-radius:999px;padding:6px 16px;background:var(--gold-soft);color:var(--gold)!important;text-decoration:none;white-space:nowrap}
+.list{display:flex;flex-direction:column;gap:10px}
+.item{background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.item.approved{border-left-color:var(--teal)}
+.item p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.head{display:flex;flex-wrap:wrap;gap:10px;font-size:.88rem;color:var(--muted)}
+.head b{color:var(--ink)}
+.pill{font-size:.75rem;border-radius:999px;padding:0 10px;background:var(--gold-soft);color:var(--gold)}
+.approved .pill{background:var(--teal-soft);color:var(--teal)}
+.pg{font-size:.75rem;border:1px solid var(--line);border-radius:999px;padding:0 10px}
+.actions{display:flex;gap:8px;justify-content:flex-end}
+.empty{color:var(--muted);margin:0}
+.stack{display:flex;flex-direction:column;gap:20px}
+.stack.tight{gap:12px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>サイト管理</h1>
+
+  <form class="row" id="login">
+    <input id="token" type="password" placeholder="合言葉(AdminToken)" autocomplete="current-password">
+    <button type="submit">開く</button>
+  </form>
+
+  <p class="msg" id="msg" hidden></p>
+
+  <div id="panel" class="stack" hidden>
+    <section class="card" aria-labelledby="pages-title">
+      <h2 id="pages-title">ページ</h2>
+      <ul class="pages" id="pages"><li class="empty">読み込んでいます…</li></ul>
+    </section>
+
+    <section aria-labelledby="cm-title" class="stack tight">
+      <h2 id="cm-title">コメント</h2>
+      <div class="row">
+        <div class="tabs row">
+          <button type="button" data-f="pending" aria-pressed="true">承認待ち <span id="n-pending"></span></button>
+          <button type="button" data-f="approved" aria-pressed="false">公開中 <span id="n-approved"></span></button>
+        </div>
+        <select id="page-filter" aria-label="ページで絞り込む"><option value="">すべてのページ</option></select>
+        <span style="flex:1"></span>
+        <button type="button" class="ghost" id="reload">再読み込み</button>
+        <button type="button" class="ghost" id="logout">ログアウト</button>
+      </div>
+      <div class="list" id="list"></div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function(){
+  const $ = (id) => document.getElementById(id);
+  let token = "";
+  try { token = sessionStorage.getItem("adminToken") || ""; } catch (e) {}
+  let filter = "pending", pageFilter = "", items = [], pages = [];
+  const fmt = new Intl.DateTimeFormat("ja-JP",{timeZone:"Asia/Kuala_Lumpur",dateStyle:"medium",timeStyle:"short"});
+
+  function showMsg(t){ $("msg").textContent = t; $("msg").hidden = !t; }
+
+  async function call(path, method){
+    const res = await fetch(path, { method: method || "GET", headers: { "x-admin-token": token } });
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 401) { logout(); throw new Error(data.error || "合言葉が違います。"); }
+    if (!res.ok) throw new Error(data.error || ("エラー " + res.status));
+    return data;
+  }
+
+  async function load(){
+    showMsg("");
+    try {
+      const [c, p] = await Promise.all([call("/api/admin/comments"), call("/api/admin/pages")]);
+      items = c.comments || []; pages = p.pages || [];
+      $("login").hidden = true; $("panel").hidden = false;
+      renderPages(); renderFilter(); render();
+    } catch (e) { showMsg(e.message); }
+  }
+
+  function pageLabel(slug){
+    const pg = pages.find(p => p.slug === slug);
+    return pg && pg.title ? pg.title : "/" + slug + "/";
+  }
+
+  function renderPages(){
+    const ul = $("pages"); ul.textContent = "";
+    for (const pg of pages) {
+      const li = document.createElement("li");
+      const left = document.createElement("span");
+      const a = document.createElement("a"); a.href = pg.path; a.target = "_blank"; a.rel = "noopener";
+      a.textContent = pg.title || pg.path;
+      const code = document.createElement("code"); code.textContent = " " + pg.path;
+      left.append(a, code);
+      const edit = document.createElement("a"); edit.className = "btn-edit";
+      edit.href = pg.path + "#edit"; edit.textContent = "編集";
+      li.append(left, edit); ul.appendChild(li);
+    }
+    if (!pages.length) { const li = document.createElement("li"); li.className = "empty"; li.textContent = "ページがありません。"; ul.appendChild(li); }
+  }
+
+  function renderFilter(){
+    const sel = $("page-filter"); const keep = sel.value;
+    sel.length = 1;
+    const slugs = [...new Set(pages.filter(p => p.slug).map(p => p.slug).concat(items.map(c => c.page)))];
+    for (const s of slugs) { const o = document.createElement("option"); o.value = s; o.textContent = pageLabel(s); sel.appendChild(o); }
+    sel.value = keep;
+  }
+
+  function render(){
+    const scoped = items.filter(c => !pageFilter || c.page === pageFilter);
+    const pend = scoped.filter(c => c.status !== "approved");
+    const appr = scoped.filter(c => c.status === "approved");
+    $("n-pending").textContent = pend.length ? "(" + pend.length + ")" : "";
+    $("n-approved").textContent = appr.length ? "(" + appr.length + ")" : "";
+    const shown = filter === "pending" ? pend : appr;
+    const list = $("list"); list.textContent = "";
+    if (!shown.length) {
+      const p = document.createElement("p"); p.className = "empty";
+      p.textContent = filter === "pending" ? "承認待ちのコメントはありません。" : "公開中のコメントはありません。";
+      list.appendChild(p); return;
+    }
+    for (const c of shown) {
+      const el = document.createElement("article");
+      el.className = "item" + (c.status === "approved" ? " approved" : "");
+      const head = document.createElement("div"); head.className = "head";
+      const pill = document.createElement("span"); pill.className = "pill";
+      pill.textContent = c.status === "approved" ? "公開中" : "承認待ち";
+      const pg = document.createElement("span"); pg.className = "pg"; pg.textContent = pageLabel(c.page);
+      const name = document.createElement("b"); name.textContent = c.name || "匿名";
+      const role = document.createElement("span"); role.textContent = c.role || "";
+      const date = document.createElement("span"); date.textContent = fmt.format(new Date(c.createdAt));
+      head.append(pill, pg, name, role, date);
+      const body = document.createElement("p"); body.textContent = c.body;
+      const actions = document.createElement("div"); actions.className = "actions";
+      const base = "/api/admin/comments/" + c.page + "/" + c.id;
+      if (c.status !== "approved") {
+        const ok = document.createElement("button"); ok.type = "button"; ok.textContent = "承認して公開";
+        ok.onclick = async () => { ok.disabled = true; try { await call(base + "/approve", "POST"); c.status = "approved"; render(); } catch(e){ showMsg(e.message); ok.disabled = false; } };
+        actions.appendChild(ok);
+      }
+      const del = document.createElement("button"); del.type = "button"; del.className = "danger"; del.textContent = "削除";
+      del.onclick = async () => {
+        if (del.dataset.armed !== "1") { del.dataset.armed = "1"; del.textContent = "本当に削除する"; setTimeout(() => { del.dataset.armed = ""; del.textContent = "削除"; }, 4000); return; }
+        del.disabled = true;
+        try { await call(base, "DELETE"); items = items.filter(x => x !== c); render(); }
+        catch(e){ showMsg(e.message); del.disabled = false; }
+      };
+      actions.appendChild(del);
+      el.append(head, body, actions);
+      list.appendChild(el);
+    }
+  }
+
+  function logout(){
+    token = ""; try { sessionStorage.removeItem("adminToken"); } catch (e) {}
+    $("login").hidden = false; $("panel").hidden = true; $("list").textContent = "";
+  }
+
+  $("login").addEventListener("submit", (e) => {
+    e.preventDefault();
+    token = $("token").value.trim();
+    try { sessionStorage.setItem("adminToken", token); } catch (e) {}
+    load();
+  });
+  $("reload").onclick = load;
+  $("logout").onclick = logout;
+  $("page-filter").onchange = (e) => { pageFilter = e.target.value; render(); };
+  document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => {
+    filter = b.dataset.f;
+    document.querySelectorAll(".tabs button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    render();
+  });
+  if (token) load();
+})();
+</script>
+</body>
+</html>

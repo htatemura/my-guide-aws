@@ -1,0 +1,10 @@
+# SAMのビルド結果
+.aws-sam/
+# 依存パッケージ
+node_modules/
+package-lock.json
+# 秘密の文字列が入る設定ファイル
+samconfig.toml
+# 最後に公開したページの版(deploy.shが作成)
+.last-deploy
+.last-deploy.tmp
