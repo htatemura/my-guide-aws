@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="INTI International College Subangに留学する日本人向けの、生活立ち上げガイドのシリーズ。">
+<title>はじめての INTI Subang 留学</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Maru+Gothic:wght@700;900&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* はじめての INTI Subang 留学 共通スタイル */
+:root{
+  --bg:#f5f7f6; --paper:#ffffff; --ink:#1d2a2a; --muted:#5b6b6a;
+  --line:#d6dfdd; --teal:#0f6e66; --teal-soft:#e0efec; --gold:#b9780d; --gold-soft:#fbf0d9;
+  --warn:#a33a2a; --warn-soft:#f9e6e2;
+  --f-display:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;
+  --f-body:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121a19; --paper:#1a2423; --ink:#e4ecea; --muted:#9db0ad; --line:#2e3c3a;
+  --teal:#5cc4b8; --teal-soft:#1d3532; --gold:#e9b14d; --gold-soft:#3a2f17; --warn:#f08a77; --warn-soft:#3a201b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121a19; --paper:#1a2423; --ink:#e4ecea; --muted:#9db0ad; --line:#2e3c3a;
+  --teal:#5cc4b8; --teal-soft:#1d3532; --gold:#e9b14d; --gold-soft:#3a2f17; --warn:#f08a77; --warn-soft:#3a201b; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.8}
+.wrap{max-width:760px;margin:0 auto;padding-block:40px 64px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:48px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.35;margin:0}
+h1{font-size:clamp(1.9rem,6vw,2.6rem);font-weight:900}
+h2{font-size:1.45rem}
+h3{font-size:1.1rem}
+p{margin:0}
+.eyebrow{font-size:.8rem;letter-spacing:.12em;color:var(--teal);font-weight:700}
+.mono{font-family:var(--f-mono);font-size:.92em;background:var(--teal-soft);padding:1px 6px;border-radius:4px;white-space:nowrap}
+a{color:var(--teal)}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+header{display:flex;flex-direction:column;gap:14px}
+header .lead{color:var(--muted);max-width:60ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:.8rem;border:1px solid var(--line);border-radius:999px;padding:2px 12px;color:var(--muted);background:var(--paper)}
+
+section{display:flex;flex-direction:column;gap:16px}
+
+/* 準備物 */
+.check{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;background:var(--paper);border:1px solid var(--line);border-radius:10px}
+.check li{display:flex;gap:14px;align-items:flex-start;padding:14px 16px;border-bottom:1px solid var(--line)}
+.check li:last-child{border-bottom:0}
+.check input{width:20px;height:20px;margin-top:4px;accent-color:var(--teal);flex:none}
+.check label{display:flex;flex-direction:column;gap:2px;min-width:0;cursor:pointer}
+.check b{font-weight:700}
+.check small{color:var(--muted);font-size:.9rem;line-height:1.6}
+.check input:checked + label b{text-decoration:line-through;color:var(--muted)}
+.progress{font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+
+/* 手順 */
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.step{display:grid;grid-template-columns:44px 1fr;gap:16px;position:relative;padding-bottom:32px}
+.step:last-child{padding-bottom:0}
+.step::before{content:"";position:absolute;left:21px;top:44px;bottom:0;width:2px;background:var(--line)}
+.step:last-child::before{display:none}
+.num{width:44px;height:44px;border-radius:50%;background:var(--teal);color:var(--paper);display:grid;place-items:center;font-family:var(--f-display);font-weight:900;font-size:1.2rem}
+.body{display:flex;flex-direction:column;gap:10px;min-width:0;padding-top:6px}
+.body ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:4px}
+
+.note{border-radius:8px;padding:12px 14px;font-size:.93rem;line-height:1.7}
+.note.tip{background:var(--gold-soft)}
+.note.tip strong{color:var(--gold)}
+.note.warn{background:var(--warn-soft)}
+.note.warn strong{color:var(--warn)}
+
+/* 住所サンプル */
+.addr{font-family:var(--f-mono);font-size:.88rem;background:var(--paper);border:1px dashed var(--line);border-radius:8px;padding:12px 14px;line-height:1.7;overflow-x:auto}
+.addr span{color:var(--muted);font-family:var(--f-body);font-size:.8rem;display:inline-block;min-width:7em}
+
+/* 支払い表 */
+.tbl{overflow-x:auto;background:var(--paper);border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:.93rem}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.6}
+th{font-size:.8rem;letter-spacing:.06em;color:var(--muted);font-weight:700;background:var(--bg)}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:700;white-space:nowrap}
+.rate{font-weight:700;white-space:nowrap}
+.rate.good{color:var(--teal)}
+.rate.mid{color:var(--gold)}
+
+/* FAQ */
+details{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:0 16px}
+details + details{margin-top:8px}
+summary{cursor:pointer;padding:14px 0;font-weight:700;list-style:none;display:flex;justify-content:space-between;gap:12px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"＋";color:var(--teal);flex:none}
+details[open] summary::after{content:"－"}
+details p{padding-bottom:16px;color:var(--ink)}
+
+footer{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:20px;display:flex;flex-direction:column;gap:6px}
+
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+
+/* コメント欄 */
+.cm-form{display:flex;flex-direction:column;gap:14px;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:18px 16px}
+.cm-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.cm-row{grid-template-columns:1fr}}
+.cm-field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.cm-field label{font-size:.85rem;font-weight:700}
+.cm-field small{color:var(--muted);font-size:.8rem}
+.cm-form input,.cm-form select,.cm-form textarea{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;width:100%}
+.cm-form textarea{min-height:140px;resize:vertical;line-height:1.7}
+.cm-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.cm-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.cm-len{font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.cm-btn{font:inherit;font-weight:700;background:var(--teal);color:var(--paper);border:0;border-radius:999px;padding:10px 22px;cursor:pointer}
+.cm-btn:disabled{opacity:.6;cursor:wait}
+.cm-msg{border-radius:8px;padding:10px 14px;font-size:.93rem}
+.cm-msg.ok{background:var(--teal-soft);color:var(--teal)}
+.cm-msg.err{background:var(--warn-soft);color:var(--warn)}
+.cm-note{font-size:.85rem;color:var(--muted)}
+.cm-list{display:flex;flex-direction:column;gap:10px}
+.cm-item{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.cm-item p{white-space:pre-wrap;overflow-wrap:anywhere}
+.cm-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;font-size:.9rem}
+.cm-area{font-size:.78rem;color:var(--teal);background:var(--teal-soft);border-radius:999px;padding:0 10px}
+.cm-head time{color:var(--muted);font-size:.8rem;margin-left:auto;font-variant-numeric:tabular-nums}
+.cm-empty{color:var(--muted)}
+
+/* シリーズ共通 */
+.back{font-size:.85rem;color:var(--muted);text-decoration:none;display:inline-flex;gap:6px;align-items:center}
+.back:hover{color:var(--teal)}
+
+.articles{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.article a{display:grid;grid-template-columns:56px 1fr;gap:16px;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px;text-decoration:none;color:var(--ink)}
+.article a:hover{border-color:var(--teal)}
+.article .no{width:56px;height:56px;border-radius:50%;background:var(--teal-soft);color:var(--teal);display:grid;place-items:center;font-family:var(--f-display);font-weight:900;font-size:.8rem;line-height:1.2;text-align:center}
+.article .txt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.article b{font-family:var(--f-display);font-size:1.15rem}
+.article small{color:var(--muted);font-size:.9rem;line-height:1.6}
+.soon{color:var(--muted);font-size:.9rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="eyebrow">日本人留学生と保護者のための非公式ガイド</div>
+  <h1>はじめての<br>INTI Subang 留学</h1>
+  <p class="lead">マレーシアのINTI International College Subangに留学する日本人向けに、現地での生活の立ち上げ方を1テーマずつまとめています。到着してすぐ必要になる手続きから順番にどうぞ。</p>
+</header>
+
+<section aria-labelledby="list">
+  <div class="eyebrow">記事一覧</div>
+  <h2 id="list">テーマ別ガイド</h2>
+  <ul class="articles">
+    <li class="article"><a href="/shopee/"><span class="no" aria-hidden="true">Shopee</span><span class="txt"><b>Shopee 編</b><small>ネット通販Shopeeの登録から、住所・支払いの設定、最初の買い物まで。</small></span></a></li>
+    <!-- ARTICLES: new-page.sh がこの行の上に記事を追加します -->
+  </ul>
+  <p class="soon">次の記事を準備中です。読みたいテーマがあれば、各記事のコメント欄からお知らせください。</p>
+</section>
+
+<footer>
+  <p>INTIや各サービスの公式サイトではありません。個人が調べた内容をまとめたものです。手続きや画面は変わることがあるため、最新情報は各公式サイトで確認してください。</p>
+</footer>
+</div>
+<script>if(location.hash==="#edit"){var s=document.createElement("script");s.src="/edit.js";s.defer=true;document.head.appendChild(s);}</script>
+</body>
+</html>

@@ -128,12 +128,16 @@ img{max-width:100%}
 .cm-area{font-size:.78rem;color:var(--teal);background:var(--teal-soft);border-radius:999px;padding:0 10px}
 .cm-head time{color:var(--muted);font-size:.8rem;margin-left:auto;font-variant-numeric:tabular-nums}
 .cm-empty{color:var(--muted)}
+
+.back{font-size:.85rem;color:var(--muted);text-decoration:none;display:inline-flex;gap:6px;align-items:center}
+.back:hover{color:var(--teal)}
 </style>
 </head>
 <body>
 
 <div class="wrap">
 <header>
+  <a class="back" href="/">← はじめての INTI Subang 留学 トップ</a>
   <div class="eyebrow">はじめての INTI Subang 留学</div>
   <h1>Shopee 編 Grand SS15 の場合</h1>
   <p class="lead">日本では Amazon が使えるのにマレーシアでは Shopee。</p>
@@ -224,7 +228,7 @@ img{max-width:100%}
   </div>
 </section>
 
-<section aria-labelledby="cm-title">
+<section aria-labelledby="cm-title" data-page="shopee">
   <div class="eyebrow">みんなの体験談</div>
   <h2 id="cm-title">質問・コメント <span class="cm-len" id="cm-count"></span></h2>
   <p class="cm-note">留学生や保護者の方の、うまくいった方法、つまずいたところ、質問などをお寄せください。いただいたコメントは管理人が確認してから表示します。電話番号や住所などの個人情報は書かないでください。</p>
@@ -287,8 +291,8 @@ img{max-width:100%}
   update();
 })();
 </script>
-<script src="config.js"></script>
-<script src="comments.js" defer=""></script>
+<script src="/config.js"></script>
+<script src="/comments.js" defer=""></script>
 <script>if(location.hash==="#edit"){var s=document.createElement("script");s.src="/edit.js";s.defer=true;document.head.appendChild(s);}</script>
 
 
